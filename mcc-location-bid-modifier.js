@@ -102,8 +102,7 @@ function main() {
 					else {
 						campaign.addLocation(row['CityCriteriaId'], Number(bidModifier.toFixed(2)));
 						Logger.log("Added " + row['CityCriteriaId'] + " to " + row['CampaignName'] + " with a " + bidModifier.toFixed(2) + " modifier.")
-					}
-						
+					}	
 				}
 			}
 
