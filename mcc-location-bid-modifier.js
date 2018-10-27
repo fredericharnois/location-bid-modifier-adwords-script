@@ -3,28 +3,39 @@
 * Location Bid Modifier Script
 * MCC Level
 *
-* This script will add locations with high conversion rates
+* This script adds locations with high conversion rates
 * and update their bid modifiers on an ongoing basis.
 *
-* Version: 1.0
+* Version: 1.1
 * Google AdWords Script maintained by Frederic Harnois
 *
 **/
 
-var accountIds = 'INSERT CIDs HERE';
+// MODIFY YOUR SETTINGS HERE //
 
+// accounts in which the script will run
+var ACCOUNTIDS = 'INSERT_CIDs';
+
+// minimum number of conversions for the script to add a bid modifier to a given city
+var CONVERSIONTHRESHOLD = 'INSERT_CONVERSION_THRESHOLD'
+
+// minimum number of clicks for the script to add a bid modifier to a given city
+var CLICKTHRESHOLD = 'INSERT_CLICK_THRESHOLD'
+
+// DO NOT MODIFY ANYTHING BELOW //
 
 function main() {
 
 	// Gets specified accounts within MCC
 	var accountSelector = MccApp.accounts()
-		.withIds([accountIds]);
+		.withIds([ACCOUNTIDS]);
 	var accountIterator = accountSelector.get();
 
 	while (accountIterator.hasNext()) {
 		var account = accountIterator.next();    
 		var accountName = account.getName();
 		MccApp.select(account);
+        Logger.log("Going through " + accountName)
 
 		// Resets location bid modifiers
 		var campaignIterator = AdWordsApp.campaigns().get()
@@ -47,10 +58,8 @@ function main() {
 		var report = AdWordsApp.report(
 			'SELECT CountryCriteriaId, CityCriteriaId, CampaignId, CampaignName, Clicks, Impressions, Conversions, Cost ' +
 			'FROM   GEO_PERFORMANCE_REPORT ' +
-			// Insert a conversion threshold here
-			'WHERE  Conversions > 9 ' +
-			// Insert an impression threshold here
-			'AND Impressions > 19 ' +
+			'WHERE  Conversions > ' + CONVERSIONTHRESHOLD + ' ' +
+			'AND Clicks > ' + CLICKTHRESHOLD + ' ' +
 			'DURING LAST_30_DAYS', {
 				resolveGeoNames: false
 			});
@@ -66,15 +75,19 @@ function main() {
 				var percentChange = (((row['Conversions'] / row['Clicks']) - averageConversionRate)/averageConversionRate)
 
 				if (percentChange >= 1) {
-					bidModifier = percentChange
+					bidModifier = 1.25
 				}
 
-				else if (percentChange >= -1 && percentChange < 1){
-					bidModifier = (percentChange + 1)
+				else if (percentChange > 0 && percentChange < 1){
+					bidModifier = 1.15
+				}
+
+				else if (percentChange < 0){
+					bidModifier = 0.85
 				}
 
 				else{
-					bidModifier = 0
+					bidModifier = 1
 				}
 
 				var campaignIterator = AdWordsApp.campaigns()
