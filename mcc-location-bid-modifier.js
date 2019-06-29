@@ -7,7 +7,9 @@
 * and update their bid modifiers on an ongoing basis.
 *
 * Version: 1.1
-* Google AdWords Script maintained by Frederic Harnois
+*
+* Google Ads Script maintained by Frederic Harnois
+* fred@fredericharnois.com
 *
 **/
 
